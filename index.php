@@ -27,3 +27,6 @@ Unit::Load('Template');
  */
 include(__DIR__.'/APP.trait.php');
 include(__DIR__.'/App.class.php');
+
+//	...
+return true;
