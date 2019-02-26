@@ -9,6 +9,20 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
+/** namespace
+ *
+ * @creation  2019-02-20
+ */
+namespace OP\UNIT;
+
+/** Used class.
+ *
+ */
+use OP\Env;
+use OP\Unit;
+use OP\Notice;
+use function OP\ConvertPath;
+
 /** App
  *
  * @creation  2018-04-04
@@ -17,23 +31,43 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class App
+class App implements \OP\IF_UNIT, \OP\IF_APP
 {
 	/** trait.
 	 *
 	 */
-	use OP_CORE, OP_SESSION;
+	use \OP\OP_CORE, \OP\OP_UNIT;
 
-	//	...
-	static private $_DISPATCH_	 = 'OP\UNIT\NEWWORLD\Dispatch';
-	static private $_LAYOUT_	 = 'OP\UNIT\NEWWORLD\Layout';
-	static private $_ROUTER_	 = 'OP\UNIT\NEWWORLD\Router';
-	static private $_TEMPLATE_	 = 'OP\UNIT\NEWWORLD\Template';
+	/** SmartURL Arguments.
+	 *
+	 * @var array
+	 */
+	private $_args;
+
+	/** Automatically.
+	 *
+	 */
+	function Auto()
+	{
+		try{
+			//	Get End-Point.
+			$endpoint = $this->Unit('Router')->EndPoint();
+
+			//	Get End-Point content.
+			$content = $this->Template($endpoint, [], 'Get');
+
+			//	Display layout in content.
+			$this->Unit('Layout')->Auto($content);
+
+		}catch( \Throwable $e ){
+			Notice::Set($e);
+		};
+	}
 
 	/** Automatically run.
 	 *
 	 */
-	static function Auto()
+	static function _Auto()
 	{
 		//	End-point file path.
 		$endpoint = null;
@@ -49,7 +83,7 @@ class App
 		}
 
 		//	Execute end-point.
-		$content = OP\UNIT\NEWWORLD\Dispatch::Get($endpoint);
+	//	$content = OP\UNIT\NEWWORLD\Dispatch::Get($endpoint);
 
 		//	For developers.
 		if( Env::isLocalhost() ){
@@ -86,8 +120,8 @@ class App
 						}else{
 							//	Get unique hash key.
 							Unit::Load('webpack');
-							$hash_js  = \OP\UNIT\WebPack::Hash('js');
-							$hash_css = \OP\UNIT\WebPack::Hash('css');
+						//	$hash_js  = \OP\UNIT\WebPack::Hash('js');
+						//	$hash_css = \OP\UNIT\WebPack::Hash('css');
 
 							//	Finger print is unique hash key.
 							$fp = "$hash_js, $hash_css";
@@ -155,42 +189,18 @@ class App
 		echo self::$_LAYOUT_::Get($content);
 	}
 
-	/** Get SmartURL arguments.
-	 *
-	 * @return	 array	 $args
-	 */
-	static function Args()
-	{
-		return self::$_ROUTER_::Get()['args'];
-	}
-
-	/** Get end-point directory name.
-	 *
-	 * @return	 string	 $endpoint
-	 */
-	static function EndPoint()
-	{
-		return self::$_ROUTER_::Get()['end-point'];
-	}
-
 	/** Template
 	 *
-	 * @param	 string	 $path
-	 * @param	 string	 $args
+	 * @param	 string		 $path
+	 * @param	 string		 $args
 	 */
-	static function Template($path, $args=null)
+	function Template(string $path, array $args=[], $method='Out')
 	{
 		//	...
-		if( $args and !is_array($args)){
-			$type = is_object($args) ? get_class($args) : gettype($args);
-			D("Argument is not array. ($type)");
-			return;
-		}
+		$args['app'] = $this;
 
 		//	...
-		if( $path ){
-			self::$_TEMPLATE_::Run($path, $args);
-		}
+		return $this->Unit('Template')->$method($path, $args, true);
 	}
 
 	/** Layout
@@ -204,78 +214,36 @@ class App
 	 *
 	 * @param	 null|boolean|string	 $value
 	 */
-	static function Layout($name=null)
+	function Layout($val=null)
 	{
 		//	...
-		switch( $type = gettype($name) ){
-			case 'NULL':
-				break;
-
-			case 'boolean':
-				//	...
-				self::$_LAYOUT_::Execute($name);
-
-				//	...
-				if(!$name ){
-					self::$_LAYOUT_::Name('');
-				}
-				break;
-
-			case 'string':
-				//	...
-				self::$_LAYOUT_::Name($name);
-				break;
-
-			default:
-				Notice::Set("Has not been support this type. ($type)");
-		}
+		$config = Env::Get('layout');
 
 		//	...
-		return self::$_LAYOUT_::Execute() ? self::$_LAYOUT_::Name() : false;
-	}
-
-	/** WebPack
-	 *
-	 * @param	 string	 $path
-	 */
-	static function WebPack($path)
-	{
-		//	...
-		if(!class_exists('OP\UNIT\WebPack') ){
-			if(!Unit::Load('webpack') ){
-				return;
-			}
-		}
+		if( is_bool($val) ){
+			$config['execute'] = $val;
+		}else if( is_string($val) ){
+			$config['name'] = $val;
+		};
 
 		//	...
-		list($path, $ext) = explode('.', $path);
+		Env::Set('layout', $config);
 
 		//	...
-		$path = ConvertPath($path);
-
-		//	...
-		OP\UNIT\WebPack::Set($ext, $path);
+		return $config;
 	}
 
 	/** Get to transparently GET or POST.
 	 *
 	 * @return array $request
 	 */
-	static function Request()
+	function Request()
 	{
 		//	...
 		$method = $_SERVER['REQUEST_METHOD'];
 
 		//	...
-		switch( $method ){
-			case 'GET':
-				$request = $_GET;
-				break;
-
-			case 'POST':
-				$request = $_POST;
-				break;
-		}
+		$request = ${"_{$method}"};
 
 		//	...
 		return Escape( $request ?? [] );
@@ -287,27 +255,14 @@ class App
 	 * @param	 string	 $separator
 	 * @return	 string	 $title
 	 */
-	static function Title($title=null)
+	function Title($title=null, $separator=' | ')
 	{
-		static $_titles, $separator=' | ';
+		//	...
 		if( $title ){
-			$_titles[] = $title;
-		}
-		return join($separator, array_reverse($_titles));
-	}
+			Env::Set('title', $title.$separator.Env::Get('title'));
+		};
 
-	/** Get/Set breadcrumbs arguments.
-	 *
-	 * @param  array $list
-	 * @return array $lists
-	 */
-	static function Breadcrumbs($list=null)
-	{
-		static $_list = [];
-		if( $list ){
-			$_list[] = $list;
-		}else{
-			return $_list;
-		}
+		//	...
+		return Env::Get('title');
 	}
 }
