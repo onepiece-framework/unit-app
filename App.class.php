@@ -277,27 +277,11 @@ class App implements IF_UNIT, IF_APP
 	 * @param    string      $url
 	 * @return   string      $url
 	 */
-	function CDN(string $url)
+	function CDN()
 	{
 		//	...
-		$url = $this->URL($url);
-
-		//	...
-		if( Env::isLocalhost() ){
-			return $url;
-		};
-
-		//	...
-		if(!Env::Get('cdn')['execute'] ?? null ){
-			return $url;
-		};
-
-		//	...
-		$scheme = empty($_SERVER['HTTPS']) ? 'http':'https';
-		$domain = Env::Get('cdn')['domain'];
-
-		//	...
-		return "{$scheme}://{$domain}{$url}";
+		require_once(__DIR__.'/function/cdn.php');
+		return APP\FUNCTIONS\CDN();
 	}
 
 	/** Canonical
