@@ -15,11 +15,6 @@
  */
 namespace OP;
 
-/** Used class.
- *
- * @created   2019-11-28
- */
-
 /** APP
  *
  * @created   2019-11-28
