@@ -26,7 +26,6 @@ use OP\OP_SESSION;
 use OP\IF_UNIT;
 use OP\IF_APP;
 use OP\Env;
-use OP\Cookie;
 use OP\Notice;
 use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
@@ -210,6 +209,7 @@ class App implements IF_UNIT, IF_APP
 	 *
 	 * @return  string  $uuid
 	 */
+	/*
 	function UUID()
 	{
 		//	...
@@ -221,12 +221,14 @@ class App implements IF_UNIT, IF_APP
 		//	...
 		return $uuid;
 	}
+	*/
 
 	/** Convert to url from meta url.
 	 *
 	 * @param   string  $path
 	 * @return  string  $url
 	 */
+	/*
 	function URL(string $url)
 	{
 		//	...
@@ -270,6 +272,7 @@ class App implements IF_UNIT, IF_APP
 		//	...
 		return '/'.ltrim($result,'/') . ($que ?? null);
 	}
+	*/
 
 	/** CDN FQDN
 	 *
@@ -277,6 +280,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param    string      $url
 	 * @return   string      $url
 	 */
+	/*
 	function CDN(string $url)
 	{
 		//	...
@@ -299,6 +303,7 @@ class App implements IF_UNIT, IF_APP
 		//	...
 		return "{$scheme}://{$domain}{$url}";
 	}
+	*/
 
 	/** Canonical
 	 *
@@ -306,6 +311,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param    string     $url
 	 * @return   string     $fqdn
 	 */
+	/*
 	function Canonical($url=null)
 	{
 		//	...
@@ -319,4 +325,5 @@ class App implements IF_UNIT, IF_APP
 		//	...
 		return "{$scheme}://{$domain}{$uri}";
 	}
+	*/
 }
