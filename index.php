@@ -8,4 +8,9 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
+
+/** Include
+ *
+ */
+include(__DIR__.'/APP.trait.php');
 include(__DIR__.'/App.class.php');
