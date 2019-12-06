@@ -191,7 +191,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param  string  $separator
 	 * @return string  $title
 	 */
-	function Title($title=null, $separator=' | ')
+	static function Title($title=null, $separator=' | ')
 	{
 		//	...
 		static $_title = [];
@@ -210,7 +210,7 @@ class App implements IF_UNIT, IF_APP
 	 *
 	 * @return  string  $uuid
 	 */
-	function UUID()
+	static function UUID()
 	{
 		//	...
 		if(!$uuid = Cookie::Get('uuid') ){
@@ -227,7 +227,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param   string  $path
 	 * @return  string  $url
 	 */
-	function URL(string $url)
+	static function URL(string $url)
 	{
 		//	...
 		static $_app, $_locale;
@@ -277,7 +277,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param    string      $url
 	 * @return   string      $url
 	 */
-	function CDN()
+	static function CDN()
 	{
 		//	...
 		require_once(__DIR__.'/function/cdn.php');
@@ -290,7 +290,7 @@ class App implements IF_UNIT, IF_APP
 	 * @param    string     $url
 	 * @return   string     $fqdn
 	 */
-	function Canonical($url=null)
+	static function Canonical($url=null)
 	{
 		//	...
 		$config = Env::Get('canonical');
