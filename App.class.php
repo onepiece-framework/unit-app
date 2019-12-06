@@ -194,16 +194,20 @@ class App implements IF_UNIT, IF_APP
 	static function Title($title=null, $separator=' | ')
 	{
 		//	...
-		static $_title = [];
+		static $_title;
 
 		//	...
-		if( $title ){
-			//	Stack title.
-			array_unshift($_title, $title.$separator);
-		}else{
-			//	Return title.
-			return join('', $_title) . (Env::Get('app')['title'] ?? null);
+		if( empty($title) ){
+			return $_title;
+		}
+
+		//	...
+		if( empty($_title) ){
+			$_title = Env::Get('app')['title'] ?? null;
 		};
+
+		//	...
+		$_title = $_title ? $title . $separator . $_title : $title;
 	}
 
 	/** Unique User ID.
