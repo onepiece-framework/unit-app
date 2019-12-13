@@ -307,14 +307,4 @@ class App implements IF_UNIT, IF_APP
 		//	...
 		return "{$scheme}://{$domain}{$uri}";
 	}
-
-	/** Testcase
-	 *
-	 * @created   2019-12-09
-	 * @param     array
-	 */
-	function Testcase($args)
-	{
-		self::Template(__DIR__.'/testcase/index.phtml', ['args'=>$args]);
-	}
 }
