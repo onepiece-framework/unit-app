@@ -80,11 +80,17 @@ class App implements IF_UNIT, IF_APP
 			//	Is http?
 			if( Env::isHttp() ){
 
-				//	Set MIME
-				Env::Mime('text/html');
-
 				//	Get End-Point.
 				$endpoint = $this->EndPoint();
+
+				//	Get extension
+				$ext = substr($endpoint, strrpos($endpoint, '.') + 1);
+
+				//	Get mime by extension.
+				$mime = Env::Ext($ext);
+
+				//	Set MIME
+				Env::Mime($mime);
 
 				//	Get End-Point content.
 				$this->_content = self::__TEMPLATE_GET($endpoint, ['app'=>$this]);
