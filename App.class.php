@@ -27,6 +27,7 @@ use OP\IF_UNIT;
 use OP\IF_APP;
 use OP\Env;
 use OP\Cookie;
+use OP\Config;
 use OP\Notice;
 use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
@@ -83,37 +84,41 @@ class App implements IF_UNIT, IF_APP
 				//	Get End-Point.
 				$endpoint = $this->EndPoint();
 
-				//	Get extension
-				$ext = substr($endpoint, strrpos($endpoint, '.') + 1);
-
-				//	Get mime by extension.
-				$mime = Env::Ext($ext);
-
-				//	Set MIME
-				Env::Mime($mime);
-
 				//	Get End-Point content.
 				$this->_content = self::__TEMPLATE_GET($endpoint, ['app'=>$this]);
 
+				//	Set mime if empty.
+				if(!$mime = Env::Mime() ){
+					//	Get extension
+					$ext = substr($endpoint, strrpos($endpoint, '.') + 1);
+
+					//	In case of not php file.
+					if( $ext !== 'php' ){
+						//	Get mime by extension.
+						$mime = Env::Ext($ext);
+					}else{
+						$mime = 'text/html';
+					}
+
+					//	Set MIME
+					Env::Mime($mime);
+				}
+
 				//	ETag
-				$this->_ETag();
-
-				//	Layout
-				$this->__LAYOUT();
-
-				/*
-
-				//	Get current mime.
-				$mime = Env::Mime();
+				if( Config::Get('app')['etag'] ?? null ){
+					$this->_ETag();
+				}
 
 				//	Check whether to do layout.
 				if( $mime === 'text/html' and Env::Get('layout')['execute'] ?? null ){
 					//	Do layout.
-					$this->Unit('Layout')->Auto($this->_content);
+					$this->__LAYOUT();
 				}else{
 					//	No layout.
 					echo $this->_content;
 				};
+
+				/*
 
 				//	...
 				unset($this->_content);
@@ -121,7 +126,7 @@ class App implements IF_UNIT, IF_APP
 				*/
 
 			}else{
-				//	...
+				//	In case of shell
 				$root = $_SERVER['PWD'].'/';
 				$path = $_SERVER['argv'][1] ?? 'index.php';
 				$file = $root . $path;
