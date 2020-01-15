@@ -85,6 +85,12 @@ class App implements IF_UNIT, IF_APP
 				//	Get End-Point.
 				$endpoint = $this->EndPoint();
 
+				//	Check end-point if asset directory.
+				if( strpos($endpoint, RootPath('asset')) === 0 ){
+					//	Overwrite end-point.
+					$endpoint = ConvertPath('app:/404.php');
+				};
+
 				//	Get End-Point content.
 				$this->_content = self::__TEMPLATE_GET($endpoint, ['app'=>$this]);
 
