@@ -63,7 +63,8 @@ $args = $app->Args();
 
 ### Request
 
- Get GET or POST values.<br/>
+ Get GET or POST values.
+ And, correspond to shell environment arguments.<br/>
  Since the encoded value can be obtained, XSS does not occur.<br/>
 
 ```php
