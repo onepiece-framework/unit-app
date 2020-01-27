@@ -18,7 +18,6 @@ namespace OP\UNIT;
 /** Used class.
  *
  */
-use Exception;
 use OP\OP_CORE;
 use OP\OP_UNIT;
 use OP\OP_SESSION;
@@ -64,23 +63,24 @@ class App implements IF_UNIT, IF_APP
 	function Auto()
 	{
 		try{
+			/* @var $router \OP\UNIT\Router */
+			$router = $this->Unit('Router');
+
+			//	Get End-Point.
+			$endpoint = $router->EndPoint();
+
 			//	Is http?
 			if( Env::isHttp() ){
+				//	...
+				$this->UserID();
 
-				//	Set MIME
+				//	...
 				Env::Mime('text/html');
-
-				/* @var $router \OP\UNIT\Router */
-				$router = $this->Unit('Router');
-
-				//	Get End-Point.
-				$endpoint = $router->EndPoint();
 
 				//	...
 				if( $g11n = Env::Get('g11n') ){
 					//	...
 					if( ($g11n['execute'] ?? null) and ($g11n['transfer'] ?? null) ){
-						//	Separate G11n rogif
 						include_once(__DIR__.'/G11n.class.php');
 						APP\G11n::Auto($router);
 					};
@@ -89,57 +89,34 @@ class App implements IF_UNIT, IF_APP
 				//	Get End-Point content.
 				$this->_content = $this->Template($endpoint, [], 'Get');
 
-				//	...
-				$mime = Env::Mime();
-
 				//	ETag
 				if( Env::Get('app')['etag'] ?? null ){
-					//	Check if MIME is HTML.
-					if( $mime === 'text/html' ){
-						//	...
-						if( Env::isAdmin() ){
-							$notice = Notice::Has() ? date('Y-m-d H:i:s'): 'Notice is empty';
-							$notice.= ', ';
-						}else{
-							$notice = null;
-						};
-
-						//	Add unique hash to content for ETag.
+					//	...
+					if( Env::Mime() === 'text/html' ){
 						$this->_content .=
-						PHP_EOL.
 						'<!-- '.
-						$notice .
+						sprintf('Layout(%s)', Env::Get('layout')['name']) .', '.
+						sprintf('Notice::Has(%s)', Notice::Has() ? date('Y-m-d H:i:s'):'null') .', '.
 						$this->Unit('WebPack')->FileContentHash('js')  .', '.
 						$this->Unit('WebPack')->FileContentHash('css') .', '.
 						' -->'.PHP_EOL;
 					};
 
-					//	Generate ETag.
+					//	...
 					$etag = substr(md5($this->_content), 0, 8);
 
-					//	Set ETag.
+					//	...
 					$this->Unit('Http')->Header()->ETag($etag);
 				};
 
-				//	Check whether to do layout.
-				if( $mime === 'text/html' and Env::Get('layout')['execute'] ){
-					//	Do layout.
+				//	Display layout in content.
+				if( (empty($mime = Env::Mime()) or $mime === 'text/html') and Env::Get('layout')['execute'] ){
 					$this->Unit('Layout')->Auto($this->_content);
 				}else{
-					//	No layout.
 					echo $this->_content;
 				};
+
 			}else{
-				//	...
-				$root = $_SERVER['PWD'].'/';
-				$path = $_SERVER['argv'][1] ?? 'index.php';
-				$file = $root . $path;
-
-				//	...
-				if(!$endpoint = realpath($file) ){
-					throw new Exception("This file has not been exists. ($file)");
-				};
-
 				//	...
 				$this->Template($endpoint);
 			};
@@ -150,9 +127,8 @@ class App implements IF_UNIT, IF_APP
 
 	/** Template
 	 *
-	 * @param  string $path
-	 * @param  string $args
-	 * @return string $content
+	 * @param	 string		 $path
+	 * @param	 string		 $args
 	 */
 	function Template(string $path, array $args=[], $method='Out')
 	{
@@ -172,48 +148,29 @@ class App implements IF_UNIT, IF_APP
 	 * $layout = App::Layout(); // Get layout name.
 	 * </pre>
 	 *
-	 * @updated  2019-05-10  Optimized.
-	 * @param    null|boolean|string    $value
-	 * @return   null|boolean|string    $value
+	 * @param	 null|boolean|string	 $value
 	 */
-	static function Layout($val=null)
+	function Layout($val=null)
 	{
-		//	Get layout name.
-		if( $val === null ){
-			//	...
-			$layout = Env::Get('layout');
+		//	...
+		$config = Env::Get('layout');
 
-			//	...
-			if( empty($layout['execute']) ){
-				return false;
-			};
-
-			//	...
-			return $layout['name'] ?? $_GET['layout'] ?? $_GET['name'] ?? null;
-		};
-
-		//	Set config.
-		switch( $type = gettype($val) ){
-			case 'boolean':
-				$layout['execute'] = $val;
-				break;
-
-			case 'string':
-				$layout['name'] = $val;
-				break;
-
-			default:
-				Notice::Set("Has not been support this type. ($type)");
-				return;
+		//	...
+		if( is_bool($val) ){
+			$config['execute'] = $val;
+		}else if( is_string($val) ){
+			$config['name'] = $val;
 		};
 
 		//	...
-		Env::Set('layout', $layout);
+		Env::Set('layout', $config);
+
+		//	...
+	//	return $config;
 	}
 
-	/** Register WebPack file.
+	/** WebPack
 	 *
-	 * @param  string|array  $path
 	 */
 	function WebPack($path)
 	{
@@ -222,25 +179,54 @@ class App implements IF_UNIT, IF_APP
 
 	/** Get to transparently GET or POST.
 	 *
-	 * @updated  2019-05-10  Add $key param.
-	 * @param    string      $key
-	 * @return   array       $request
+	 * @return array $request
 	 */
-	function Request($key=null)
+	function Request()
 	{
 		//	...
-		switch( strtoupper($_SERVER['REQUEST_METHOD'] ?? null) ){
-			case 'GET':
-				return \OP\Encode( ($key ? $_GET [$key] : $_GET ) );
+		static $_request = null;
 
-			case 'POST':
-				return \OP\Encode( ($key ? $_POST[$key] : $_POST) );
+		//	...
+		if( $_request === null){
+			//	...
+			switch( strtoupper($_SERVER['REQUEST_METHOD'] ?? null) ){
+				case 'GET':
+					$_request = \OP\Encode($_GET);
+					break;
+
+				case 'POST':
+					$_request = \OP\Encode($_POST);
+					break;
+			};
+
+			//	In case of shell.
+			if( isset($_SERVER['argv']) ){
+				//	...
+				foreach( array_slice($_SERVER['argv'], 2) as $arg ){
+					if( $pos = strpos($arg, '=') ){
+						$key = substr($arg, 0, $pos);
+						$var = substr($arg, $pos+1);
+					}else{
+						$key = $arg;
+						$var = null;
+					};
+
+					//	...
+					$_request[$key] = $var;
+				};
+
+				//	...
+				$_request = \OP\Encode($_request);
+			};
 		};
+
+		//	...
+		return $_request;
 	}
 
 	/** Get Smart URL Arguments.
 	 *
-	 * @return  array  $args
+	 * @return array
 	 */
 	function Args()
 	{
@@ -249,9 +235,9 @@ class App implements IF_UNIT, IF_APP
 
 	/** Get/Set title.
 	 *
-	 * @param  string  $title
-	 * @param  string  $separator
-	 * @return string  $title
+	 * @param	 string	 $title
+	 * @param	 string	 $separator
+	 * @return	 string	 $title
 	 */
 	function Title($title=null, $separator=' | ')
 	{
@@ -270,9 +256,9 @@ class App implements IF_UNIT, IF_APP
 
 	/** Unique User ID.
 	 *
-	 * @return  string  $uuid
+	 * @return NULL
 	 */
-	function UUID()
+	function UserID()
 	{
 		//	...
 		if(!$uuid = Cookie::Get('uuid') ){
@@ -286,9 +272,7 @@ class App implements IF_UNIT, IF_APP
 
 	/** Env
 	 *
-	 * @param   string  $key
-	 * @param   mixed   $var
-	 * @return \OP\Env  $env
+	 * @return Env
 	 */
 	function Env($key=null, $var='')
 	{
@@ -316,7 +300,7 @@ class App implements IF_UNIT, IF_APP
 	/** Convert to url from meta url.
 	 *
 	 * @param   string  $path
-	 * @return  string  $url
+	 * @return  string
 	 */
 	function URL(string $url)
 	{
@@ -330,12 +314,7 @@ class App implements IF_UNIT, IF_APP
 
 		//	Cache
 		if( $_locale === null ){
-			//	...
-			if( Env::Get('g11n')['execute'] ?? null ){
-				$_locale = Cookie::Get('locale') ?? '';
-			}else{
-				$_locale = false;
-			};
+			$_locale = Cookie::Get('locale') ?? '';
 		};
 
 		//	Check if url query.
