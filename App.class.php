@@ -36,6 +36,7 @@ use OP\UNIT_TEMPLATE;
 use function OP\RootPath;
 use function OP\ConvertURL;
 use function OP\ConvertPath;
+use function OP\UNIT\APP\GetMIME;
 
 /** App
  *
@@ -92,13 +93,9 @@ class App implements IF_UNIT, IF_APP
 					//	Get extension
 					$ext = substr($endpoint, strrpos($endpoint, '.') + 1);
 
-					//	In case of not php file.
-					if( $ext !== 'php' ){
-						//	Get mime by extension.
-						$mime = Env::Ext($ext);
-					}else{
-						$mime = 'text/html';
-					}
+					//	Get MIME
+					include(__DIR__.'/function/GetMIME.php');
+					$mime = GetMIME($ext);
 
 					//	Set MIME
 					Env::Mime($mime);
