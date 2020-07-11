@@ -118,12 +118,8 @@ class App implements IF_UNIT, IF_APP
 					echo $this->_content;
 				};
 
-				/*
-
 				//	...
 				unset($this->_content);
-
-				*/
 
 			}else{
 				//	In case of shell
