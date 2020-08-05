@@ -307,11 +307,16 @@ class App implements IF_UNIT, IF_APP
 	static function Canonical($url=null)
 	{
 		//	...
-		$config = Env::Get('canonical');
+		if(!$canonical = Config::Get('app')['canonical'] ?? null ){
+			return false;
+		}
 
 		//	...
-		$scheme = $config['scheme'] ?? empty($_SERVER['HTTPS']) ? 'http':'https';
-		$domain = $config['domain'] ?? $_SERVER['HTTP_HOST'];
+		$parsed = parse_url($canonical);
+
+		//	...
+		$scheme = $parsed['scheme'] ?? (empty($_SERVER['HTTPS']) ? 'http':'https');
+		$domain = $parsed['host']   ?? $_SERVER['HTTP_HOST'];
 		$uri    = $url              ?? $_SERVER['REQUEST_URI'];
 
 		//	...
