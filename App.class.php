@@ -36,6 +36,10 @@ use OP\UNIT_TEMPLATE;
 use function OP\RootPath;
 use function OP\ConvertURL;
 use function OP\ConvertPath;
+use function OP\CompressPath;
+use function OP\Content;
+use function OP\Template;
+use function OP\GetTemplate;
 use function OP\UNIT\APP\GetMIME;
 
 /** App
@@ -58,12 +62,6 @@ class App implements IF_UNIT, IF_APP
 	 * @var array
 	 */
 	private $_args;
-
-	/** Content is the result of execute the endpoint.
-	 *
-	 * @var string
-	 */
-	private $_content;
 
 	/** ETag
 	 *
@@ -92,7 +90,7 @@ class App implements IF_UNIT, IF_APP
 				};
 
 				//	Get End-Point content.
-				$this->_content = self::__TEMPLATE_GET($endpoint, ['app'=>$this]);
+				Content(CompressPath($endpoint), ['app'=>$this]);
 
 				//	Set mime if empty.
 				if(!$mime = Env::Mime() ){
@@ -118,11 +116,8 @@ class App implements IF_UNIT, IF_APP
 					$this->__LAYOUT();
 				}else{
 					//	No layout.
-					echo $this->_content;
+					Content();
 				};
-
-				//	...
-				unset($this->_content);
 
 			}else{
 				//	In case of shell
@@ -141,15 +136,6 @@ class App implements IF_UNIT, IF_APP
 		}catch( \Throwable $e ){
 			Notice::Set($e);
 		};
-	}
-
-	/** Output content.
-	 *
-	 * @created  2019-11-25
-	 */
-	function Content()
-	{
-		echo $this->_content;
 	}
 
 	/** Template
