@@ -27,7 +27,6 @@ use OP\IF_UNIT;
 use OP\IF_APP;
 use OP\Env;
 use OP\Cookie;
-use OP\Config;
 use OP\Notice;
 use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
@@ -256,30 +255,5 @@ class App implements IF_UNIT, IF_APP
 
 		//	...
 		return '/'.ltrim($result,'/') . ($que ?? null);
-	}
-
-	/** Canonical
-	 *
-	 * @created  2019-04-17
-	 * @param    string     $url
-	 * @return   string     $fqdn
-	 */
-	static function Canonical($url=null)
-	{
-		//	...
-		if(!$canonical = Config::Get('app')['canonical'] ?? null ){
-			return false;
-		}
-
-		//	...
-		$parsed = parse_url($canonical);
-
-		//	...
-		$scheme = $parsed['scheme'] ?? (empty($_SERVER['HTTPS']) ? 'http':'https');
-		$domain = $parsed['host']   ?? $_SERVER['HTTP_HOST'];
-		$uri    = $url              ?? $_SERVER['REQUEST_URI'];
-
-		//	...
-		return "{$scheme}://{$domain}{$uri}";
 	}
 }
