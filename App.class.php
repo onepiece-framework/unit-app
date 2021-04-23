@@ -258,19 +258,6 @@ class App implements IF_UNIT, IF_APP
 		return '/'.ltrim($result,'/') . ($que ?? null);
 	}
 
-	/** CDN FQDN
-	 *
-	 * @created  2019-04-18
-	 * @param    string      $url
-	 * @return   string      $url
-	 */
-	static function CDN()
-	{
-		//	...
-		require_once(__DIR__.'/function/cdn.php');
-		return APP\FUNCTIONS\CDN();
-	}
-
 	/** Canonical
 	 *
 	 * @created  2019-04-17
