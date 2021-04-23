@@ -63,14 +63,6 @@ class App implements IF_UNIT, IF_APP
 	 */
 	private $_args;
 
-	/** ETag
-	 *
-	 */
-	private function _ETag()
-	{
-
-	}
-
 	/** Automatically.
 	 *
 	 */
@@ -103,11 +95,6 @@ class App implements IF_UNIT, IF_APP
 
 					//	Set MIME
 					Env::Mime($mime);
-				}
-
-				//	ETag
-				if( Config::Get('app')['etag'] ?? null ){
-					$this->_ETag();
 				}
 
 				//	Check whether to do layout.
