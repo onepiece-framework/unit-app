@@ -33,6 +33,7 @@ use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
 use OP\UNIT_LAYOUT;
 use OP\UNIT_TEMPLATE;
+use function OP\Unit;
 use function OP\RootPath;
 use function OP\ConvertURL;
 use function OP\ConvertPath;
@@ -170,7 +171,7 @@ class App implements IF_UNIT, IF_APP
 	 */
 	function WebPack($path)
 	{
-		$this->Unit('WebPack')->Auto($path);
+		Unit('WebPack')->Auto($path);
 	}
 
 	/** Get/Set title.
