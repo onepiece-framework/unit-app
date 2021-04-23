@@ -20,7 +20,6 @@ namespace OP;
  */
 Unit::Load('Router');
 Unit::Load('Layout');
-Unit::Load('Template');
 
 /** Include
  *

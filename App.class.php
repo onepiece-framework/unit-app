@@ -32,7 +32,6 @@ use OP\Notice;
 use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
 use OP\UNIT_LAYOUT;
-use OP\UNIT_TEMPLATE;
 use function OP\Unit;
 use function OP\RootPath;
 use function OP\ConvertURL;
@@ -56,7 +55,7 @@ class App implements IF_UNIT, IF_APP
 	/** trait.
 	 *
 	 */
-	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP, UNIT_ROUTER, UNIT_LAYOUT, UNIT_TEMPLATE;
+	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP, UNIT_ROUTER, UNIT_LAYOUT;
 
 	/** SmartURL Arguments.
 	 *
@@ -124,27 +123,11 @@ class App implements IF_UNIT, IF_APP
 				};
 
 				//	...
-				$this->Template($endpoint);
+				Template($endpoint);
 			};
 		}catch( \Throwable $e ){
 			Notice::Set($e);
 		};
-	}
-
-	/** Template
-	 *
-	 * @created  2019-11-21
-	 * @param    string      $path
-	 * @param    string      $args
-	 * @return   string      $content
-	 */
-	function Template(string $path, array $args=[])
-	{
-		//	...
-		$args['app'] = $this;
-
-		//	...
-		return $this->__TEMPLATE($path, $args, true);
 	}
 
 	/** Layout
