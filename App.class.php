@@ -31,7 +31,6 @@ use OP\Cookie;
 use OP\Notice;
 use OP\UNIT_APP;
 use OP\UNIT_ROUTER;
-use OP\UNIT_LAYOUT;
 use function OP\Unit;
 use function OP\RootPath;
 use function OP\ConvertURL;
@@ -55,7 +54,7 @@ class App implements IF_UNIT, IF_APP
 	/** trait.
 	 *
 	 */
-	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP, UNIT_ROUTER, UNIT_LAYOUT;
+	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP, UNIT_ROUTER;
 
 	/** SmartURL Arguments.
 	 *
@@ -102,6 +101,10 @@ class App implements IF_UNIT, IF_APP
 					Env::Mime($mime);
 				}
 
+				//	Do the Layout.
+				Unit('Layout')->Auto();
+
+				/*
 				//	Check whether to do layout.
 				if( $mime === 'text/html' and Env::Get('layout')['execute'] ?? null ){
 					//	Do layout.
@@ -110,6 +113,7 @@ class App implements IF_UNIT, IF_APP
 					//	No layout.
 					Content();
 				};
+				*/
 
 			}else{
 				//	In case of shell
@@ -128,24 +132,6 @@ class App implements IF_UNIT, IF_APP
 		}catch( \Throwable $e ){
 			Notice::Set($e);
 		};
-	}
-
-	/** Layout
-	 *
-	 * <pre>
-	 * App::Layout(true);       // Execute layout.
-	 * App::Layout(false);      // Does not execute layout.
-	 * App::Layout('name');     // Set layout name.
-	 * $layout = App::Layout(); // Get layout name.
-	 * </pre>
-	 *
-	 * @updated  2019-05-10  Optimized.
-	 * @param    null|boolean|string    $value
-	 * @return   null|boolean|string    $value
-	 */
-	static function Layout($val=null)
-	{
-		return self::__LAYOUT_CONFIG($val);
 	}
 
 	/** Register WebPack file.
