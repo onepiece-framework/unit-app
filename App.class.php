@@ -26,6 +26,7 @@ use OP\OP_SESSION;
 use OP\IF_UNIT;
 use OP\IF_APP;
 use OP\Env;
+use OP\Config;
 use OP\Cookie;
 use OP\Notice;
 use OP\UNIT_APP;
@@ -80,8 +81,13 @@ class App implements IF_UNIT, IF_APP
 					$endpoint = ConvertPath('app:/404.php');
 				};
 
-				//	Get End-Point content.
-				Content(CompressPath($endpoint), ['app'=>$this]);
+				//	Execute End-Point.
+				$hash = Content(CompressPath($endpoint), ['app'=>$this]);
+
+				//	ETag
+				if( Config::Get('app')['etag'] ?? null ){
+					Unit('ETag')->Auto($hash);
+				}
 
 				//	Set mime if empty.
 				if(!$mime = Env::Mime() ){
