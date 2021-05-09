@@ -30,7 +30,6 @@ use OP\Config;
 use OP\Cookie;
 use OP\Notice;
 use OP\UNIT_APP;
-use OP\UNIT_ROUTER;
 use function OP\Unit;
 use function OP\RootPath;
 use function OP\ConvertURL;
@@ -54,7 +53,7 @@ class App implements IF_UNIT, IF_APP
 	/** trait.
 	 *
 	 */
-	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP, UNIT_ROUTER;
+	use OP_CORE, OP_UNIT, OP_SESSION, UNIT_APP;
 
 	/** SmartURL Arguments.
 	 *
@@ -72,7 +71,7 @@ class App implements IF_UNIT, IF_APP
 			if( Env::isHttp() ){
 
 				//	Get End-Point.
-				$endpoint = $this->EndPoint();
+				$endpoint = Unit('Router')->EndPoint();
 
 				//	Check end-point if asset directory.
 				if( strpos($endpoint, RootPath('asset')) === 0 ){
